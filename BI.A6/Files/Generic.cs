@@ -1,32 +1,26 @@
-﻿using BI.A6.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
+using XmlFileReader.NOC.Interfaces;
 
-namespace BI.A6.Files
+namespace XmlFileReader.NOC.Files
 {
     public class Generic : XML, IFileManager
     {
-        private string _filePath { get; set; }
-        private StreamWriter _sw { get; set; }
-        public override Func<XmlReader, StringBuilder,Task> Implement => ImplementReader;
+        protected override Func<XmlReader, StringBuilder,Task> Implement => ImplementReader;
 
-        public Generic(string filePath) : base(filePath)
+        public Generic(string readFrom, string saveTo = @"../Generic.txt") : base(readFrom,saveTo)
         {
-            FileStream fs = new FileStream("../Generic.txt",FileMode.Append, FileAccess.Write, FileShare.None);
-            _sw = new StreamWriter(fs, Encoding.UTF8);
-            _sw.AutoFlush = true;
         }
 
         private async Task ImplementReader(XmlReader reader, StringBuilder stringBuilder)
         {
             while (await reader.ReadAsync())
             {
-
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
@@ -77,22 +71,9 @@ namespace BI.A6.Files
                         break;
                 }
             }
-            // Done reading 
-            await CloseFile();
-
-        }
-
-        public async Task AppendNewLine(string line)
-        {
-            await _sw.WriteLineAsync(line);
-        }
-
-        public async Task CloseFile()
-        {
-            _sw.Close();
-            await _sw.DisposeAsync();
-
-        }
+            // Finished Read
+            await CloseStream();
+        }        
 
     }
 }

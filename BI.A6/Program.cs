@@ -1,9 +1,9 @@
-﻿using BI.A6.Files;
-using BI.A6.Interfaces;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using XmlFileReader.NOC.Files;
+using XmlFileReader.NOC.Interfaces;
 
-namespace BI.A6
+namespace XmlFileReader.NOC
 {
     class Program
     {
@@ -12,10 +12,14 @@ namespace BI.A6
             Console.WriteLine("Hello World!");
 
             string dir = @"C:\Users\hs_m1\Downloads\99-012-X2011033";
-            string filename = "Generic_99-012-X2011033.xml";
+            string generic = "Generic_99-012-X2011033.xml";
+            string structure = "Structure_99-012-X2011033.xml";
 
-            IFileManager generic = new Generic($"{dir}\\{filename}");
-            await generic.ReadFile();
+            IFileManager genericFile = new Generic($"{dir}\\{generic}");
+            IFileManager geographyFile = new Geography($"{dir}\\{structure}");
+            
+            await geographyFile.ReadFile();
+            await genericFile.ReadFile();
 
         }
 

@@ -5,25 +5,27 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
-using BI.A6.Interfaces;
-using BI.A6.Files;
 
-namespace BI.A6
+namespace XmlFileReader.NOC
 {
     public abstract class XML
     {
         private string _filePath { get; set; }
+        private StreamWriter _sw { get; set; }
 
-        public abstract Func<XmlReader, StringBuilder,Task> Implement { get; }
+        protected abstract Func<XmlReader, StringBuilder,Task> Implement { get; }
 
-        public XML(string filePath)
+        public XML(string readFrom, string saveTo)
         {
-            if (!File.Exists(filePath))
+            if (!File.Exists(readFrom))
             {
                 throw new ArgumentException("File does not exist");
             }
-            _filePath = filePath;
+            _filePath = readFrom;
 
+            FileStream fs = new FileStream(saveTo, FileMode.Append, FileAccess.Write, FileShare.None);
+            _sw = new StreamWriter(fs, Encoding.UTF8);
+            _sw.AutoFlush = true;
         }
 
 
@@ -48,6 +50,16 @@ namespace BI.A6
                 Console.WriteLine(e.Message);
             }
            
+        }
+        protected async Task AppendNewLine(string line)
+        {
+            await _sw.WriteLineAsync(line);
+        }
+
+        protected async Task CloseStream()
+        {
+            _sw.Close();
+            await _sw.DisposeAsync();
         }
     }
 }

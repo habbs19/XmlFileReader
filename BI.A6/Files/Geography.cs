@@ -1,41 +1,27 @@
-﻿using BI.A6.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using XmlFileReader.NOC.Interfaces;
+using System.Xml;
 
-namespace BI.A6.Files
+namespace XmlFileReader.NOC.Files
 {
-    public class Geography : IFileManager
+    public class Geography : XML, IFileManager
     {
-        private string _filePath { get; set; }
-        private StreamWriter _sw { get; set; }
+        protected override Func<XmlReader, StringBuilder, Task> Implement => ImplementReader;
 
-        public Geography()
+        public Geography(string readFrom, string saveTo = @"../Geography.txt") : base(readFrom, saveTo)
         {
-            FileStream fs = new FileStream("../Geography.txt",FileMode.Append, FileAccess.Write, FileShare.None);
-            _sw = new StreamWriter(fs, Encoding.UTF8);
-            _sw.AutoFlush = true;
+        }
+
+        private async Task ImplementReader(XmlReader reader, StringBuilder stringBuilder)
+        {
+
         }
 
 
-        public async Task AppendNewLine(string line)
-        {
-            await _sw.WriteLineAsync(line);
-        }
-
-        public async Task CloseFile()
-        {
-            _sw.Close();
-            await _sw.DisposeAsync();
-
-        }
-
-        public Task ReadFile()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
