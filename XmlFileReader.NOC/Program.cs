@@ -17,9 +17,17 @@ namespace XmlFileReader.NOC
 
             IFileManager genericFile = new Generic($"{dir}\\{generic}");
             IFileManager geographyFile = new Geography($"{dir}\\{structure}");
-            
+            IFileManager sexFile = new Sex($"{dir}\\{structure}");
+            IFileManager occupationFile = new Occupation($"{dir}\\{structure}");
+            IFileManager ageFile = new Age($"{dir}\\{structure}");
+
             await geographyFile.ReadFile();
-            await genericFile.ReadFile();
+            await sexFile.ReadFile();
+            await occupationFile.ReadFile();
+            await ageFile.ReadFile();
+            //await genericFile.ReadFile();
+
+
 
         }
 

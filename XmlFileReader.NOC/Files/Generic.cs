@@ -11,14 +11,16 @@ namespace XmlFileReader.NOC.Files
 {
     public class Generic : XML, IFileManager
     {
-        protected override Func<XmlReader, StringBuilder,Task> Implement => ImplementReader;
+        protected override Func<XmlReader,Task> Implement => ImplementReader;
 
         public Generic(string readFrom, string saveTo = @"../Generic.txt") : base(readFrom,saveTo)
         {
         }
 
-        private async Task ImplementReader(XmlReader reader, StringBuilder stringBuilder)
+        private async Task ImplementReader(XmlReader reader)
         {
+            StringBuilder stringBuilder = new StringBuilder();
+
             while (await reader.ReadAsync())
             {
                 switch (reader.NodeType)

@@ -5,15 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
+using XmlFileReader.NOC.Interfaces;
 
 namespace XmlFileReader.NOC
 {
-    public abstract class XML
+    public abstract class XML : IFileManager
     {
         private string _filePath { get; set; }
         private StreamWriter _sw { get; set; }
 
-        protected abstract Func<XmlReader, StringBuilder,Task> Implement { get; }
+        protected abstract Func<XmlReader,Task> Implement { get; }
 
         public XML(string readFrom, string saveTo)
         {
@@ -42,7 +43,7 @@ namespace XmlFileReader.NOC
 
                     using (XmlReader reader = XmlReader.Create(fs, settings))
                     {
-                        await Implement(reader,stringBuilder);                        
+                        await Implement(reader);                        
                     }
                 }
             } catch (Exception e)
@@ -60,6 +61,48 @@ namespace XmlFileReader.NOC
         {
             _sw.Close();
             await _sw.DisposeAsync();
+        }
+
+        protected async Task ImplementGeneral(XmlReader reader, string id)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            reader.ReadToDescendant("CodeLists");
+
+            while (await reader.ReadAsync())
+            {
+                switch (reader.NodeType)
+                {
+                    case XmlNodeType.Element:
+                        if (reader.HasAttributes)
+                        {
+                            if (reader.GetAttribute("id") == id)
+                            {
+                                var subTree = reader.ReadSubtree();
+                                while (subTree.ReadToFollowing("structure:Code"))
+                                {
+                                    var value = reader.GetAttribute("value");
+                                    stringBuilder.Append(value);
+
+                                    reader.ReadToDescendant("structure:Description");
+                                    await reader.ReadAsync();
+
+                                    var desc = await reader.ReadContentAsStringAsync();
+                                    stringBuilder.Append($",{desc.Trim()}");
+
+                                    await AppendNewLine(stringBuilder.ToString());
+                                    stringBuilder.Clear();
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            Console.WriteLine($"Finished reading {id}");
+            // Finished Read
+            await CloseStream();
         }
     }
 }
