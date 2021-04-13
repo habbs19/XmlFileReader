@@ -11,7 +11,8 @@ namespace XmlFileReader.NOC
 {
     public abstract class XML : IFileManager
     {
-        private string _filePath { get; set; }
+        private string _readFrom { get; set; }
+        private string _saveTo { get; set; }
         private StreamWriter _sw { get; set; }
 
         protected abstract Func<XmlReader,Task> Implement { get; }
@@ -22,21 +23,22 @@ namespace XmlFileReader.NOC
             {
                 throw new ArgumentException("File does not exist");
             }
-            _filePath = readFrom;
-
-            FileStream fs = new FileStream(saveTo, FileMode.Append, FileAccess.Write, FileShare.None);
-            _sw = new StreamWriter(fs, Encoding.UTF8);
-            _sw.AutoFlush = true;
+            _readFrom = readFrom;
+            _saveTo = saveTo;            
         }
 
 
         public async Task ReadFile()
         {
+            FileStream fst = new FileStream(_saveTo, FileMode.Append, FileAccess.Write, FileShare.None);
+            _sw = new StreamWriter(fst, Encoding.UTF8);
+            _sw.AutoFlush = true;
+
             StringBuilder stringBuilder = new StringBuilder();
             
             try
             {
-                using (FileStream fs = File.OpenRead(_filePath))
+                using (FileStream fs = File.OpenRead(_readFrom))
                 {
                     XmlReaderSettings settings = new XmlReaderSettings();
                     settings.Async = true;
@@ -49,6 +51,7 @@ namespace XmlFileReader.NOC
             } catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                await CloseStream();
             }
            
         }
@@ -88,7 +91,7 @@ namespace XmlFileReader.NOC
                                     await reader.ReadAsync();
 
                                     var desc = await reader.ReadContentAsStringAsync();
-                                    stringBuilder.Append($",{desc.Trim()}");
+                                    stringBuilder.Append($";{desc.Trim()}");
 
                                     await AppendNewLine(stringBuilder.ToString());
                                     stringBuilder.Clear();
@@ -101,7 +104,6 @@ namespace XmlFileReader.NOC
                 }
             }
             Console.WriteLine($"Finished reading {id}");
-            // Finished Read
             await CloseStream();
         }
     }

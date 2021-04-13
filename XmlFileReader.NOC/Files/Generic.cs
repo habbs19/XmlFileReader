@@ -9,7 +9,7 @@ using XmlFileReader.NOC.Interfaces;
 
 namespace XmlFileReader.NOC.Files
 {
-    public class Generic : XML, IFileManager
+    public class Generic : XML
     {
         protected override Func<XmlReader,Task> Implement => ImplementReader;
 
@@ -20,9 +20,10 @@ namespace XmlFileReader.NOC.Files
         private async Task ImplementReader(XmlReader reader)
         {
             StringBuilder stringBuilder = new StringBuilder();
+            await AppendNewLine("Geo,Sex,AgeGroup,NOC2011,Value");
 
             while (await reader.ReadAsync())
-            {
+            {      
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
@@ -57,15 +58,22 @@ namespace XmlFileReader.NOC.Files
                                 }
                                 case "COWD":
                                 {
-                                    reader.MoveToNextAttribute();
-                                    stringBuilder.Append($"{reader.GetAttribute("value")}");
-
-                                    await AppendNewLine(stringBuilder.ToString());
-                                    stringBuilder.Clear();
+                                    // Not using data
+                                    break;
+                                }                                
+                                default:
+                                {
+                                    if(reader.LocalName == "ObsValue")
+                                    {
+                                        if (reader.MoveToNextAttribute())
+                                        {
+                                            stringBuilder.Append($"{reader.GetAttribute("value")}");
+                                            await AppendNewLine(stringBuilder.ToString());
+                                            stringBuilder.Clear();
+                                        }
+                                    }
                                     break;
                                 }
-                                default:
-                                    break;
                             }
                         }
                         break;
@@ -73,7 +81,7 @@ namespace XmlFileReader.NOC.Files
                         break;
                 }
             }
-            // Finished Read
+            Console.WriteLine("Finished reading Data");
             await CloseStream();
         }        
 

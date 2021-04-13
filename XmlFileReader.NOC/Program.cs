@@ -12,20 +12,23 @@ namespace XmlFileReader.NOC
             Console.WriteLine("Hello World!");
 
             string dir = @"C:\Users\hs_m1\Downloads\99-012-X2011033";
-            string generic = "Generic_99-012-X2011033.xml";
-            string structure = "Structure_99-012-X2011033.xml";
+            string generic =  $"{dir}\\Generic_99-012-X2011033.xml";
+            string structure = $"{dir}\\Structure_99-012-X2011033.xml";
 
-            IFileManager genericFile = new Generic($"{dir}\\{generic}");
-            IFileManager geographyFile = new Geography($"{dir}\\{structure}");
-            IFileManager sexFile = new Sex($"{dir}\\{structure}");
-            IFileManager occupationFile = new Occupation($"{dir}\\{structure}");
-            IFileManager ageFile = new Age($"{dir}\\{structure}");
+            IFileManager genericFile = new Generic(generic);
+            IFileManager geographyFile = new Geography(structure);
+            IFileManager sexFile = new Sex(structure);
+            IFileManager occupationFile = new Occupation(structure);
+            IFileManager ageFile = new Age(structure);
+            IFileManager cowdFile = new COWD(structure);
 
             await geographyFile.ReadFile();
             await sexFile.ReadFile();
             await occupationFile.ReadFile();
             await ageFile.ReadFile();
-            //await genericFile.ReadFile();
+            await cowdFile.ReadFile();
+            await genericFile.ReadFile();
+
 
 
 
